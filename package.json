@@ -7,12 +7,15 @@
     "deploy": "npx hardhat run scripts/deploy.ts --network sepolia",
     "register": "npx ts-node scripts/register-agent.ts",
     "run-agent": "npx ts-node scripts/run-agent.ts",
+    "dashboard": "npx ts-node scripts/dashboard.ts",
     "test": "npx hardhat test"
   },
   "dependencies": {
+    "@types/express": "^5.0.6",
     "axios": "^1.6.0",
     "dotenv": "^16.3.1",
-    "ethers": "^6.9.0"
+    "ethers": "^6.9.0",
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",

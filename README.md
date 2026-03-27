@@ -84,12 +84,47 @@ Copy the printed `AGENT_ID` to your `.env`:
 AGENT_ID=0
 ```
 
-### 3. Run the agent (sandbox mode)
+### 3. Run the agent + dashboard
+
+In two separate terminals:
 
 ```bash
-# Make sure KRAKEN_SANDBOX=true in .env
+# Terminal 1 — agent loop
 npm run run-agent
+
+# Terminal 2 — live dashboard at http://localhost:3000
+npm run dashboard
 ```
+
+You'll see output like:
+
+```
+[agent] Starting agent loop
+[agent] agentId:  0
+[agent] Pair:     XBTUSD
+[agent] Interval: 30s
+
+[agent] XBTUSD @ $66,422.6
+[2026-03-27T11:02:50.000Z] HOLD XBTUSD @ $66,422.60
+  Confidence: 50%
+  Reason: No clear momentum (0.09% change). Holding current position.
+  Market: bid=66421, ask=66421.1, spread=0.0002%, vol=2764.35
+
+────────────────────────────────────────────────────────────────────────
+CHECKPOINT — HOLD XBTUSD
+  Agent:     0
+  Timestamp: 2026-03-27T11:02:50.000Z
+  Amount:    $0
+  Price:     $66422.6
+  Confidence: 50%
+  Sig:       0x4f93af3b...c66c3bb31c
+  Signer:    0xYourAgentWallet
+────────────────────────────────────────────────────────────────────────
+
+[agent] Checkpoint posted to ValidationRegistry: 0xa6993f19...
+```
+
+The agent warms up for the first 5 ticks (collecting price samples), then starts evaluating momentum. It HOLDs when price change is below the threshold (~1%), and BUYs/SELLs on clear momentum. Every decision — including HOLDs — generates a signed checkpoint posted to the ValidationRegistry on Sepolia.
 
 You'll see live market data, trade decisions, human-readable explanations, and signed checkpoints printed to the console. Every checkpoint is appended to `checkpoints.jsonl`.
 
@@ -150,7 +185,7 @@ src/
     identity.ts          # ERC-8004 registration
     strategy.ts          # TradingStrategy interface + example strategies
   exchange/
-    kraken.ts            # Kraken REST API client
+    kraken.ts            # Kraken CLI client (paper + live)
   onchain/
     vault.ts             # Vault contract interactions
     riskRouter.ts        # RiskRouter contract interactions
@@ -162,6 +197,7 @@ scripts/
   deploy.ts              # Deploy all contracts to Sepolia
   register-agent.ts      # Register agent on-chain
   run-agent.ts           # Run the agent
+  dashboard.ts           # Live web dashboard (http://localhost:3000)
 ```
 
 ---
