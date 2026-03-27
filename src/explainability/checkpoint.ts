@@ -82,10 +82,11 @@ export async function generateCheckpoint(
   };
 
   const domain = buildDomain(registryAddress, chainId);
-  const signature = await agentWalletSigner.signTypedData(domain, CHECKPOINT_TYPES, value);
+  const types = CHECKPOINT_TYPES as unknown as Record<string, ethers.TypedDataField[]>;
+  const signature = await agentWalletSigner.signTypedData(domain, types, value);
 
   // The EIP-712 digest — this is what gets submitted to the ValidationRegistry
-  const checkpointHash = ethers.TypedDataEncoder.hash(domain, CHECKPOINT_TYPES, value);
+  const checkpointHash = ethers.TypedDataEncoder.hash(domain, types, value);
 
   return {
     agentId: agentId.toString(),
@@ -132,7 +133,8 @@ export function verifyCheckpoint(
     intentHash:       checkpoint.intentHash as `0x${string}`,
   };
 
-  const recovered = ethers.verifyTypedData(domain, CHECKPOINT_TYPES, value, checkpoint.signature);
+  const types = CHECKPOINT_TYPES as unknown as Record<string, ethers.TypedDataField[]>;
+  const recovered = ethers.verifyTypedData(domain, types, value, checkpoint.signature);
   return recovered.toLowerCase() === expectedSigner.toLowerCase();
 }
 
@@ -166,5 +168,6 @@ export function computeCheckpointHash(
     confidenceScaled: BigInt(Math.round(checkpoint.confidence * 1000)),
     intentHash:       checkpoint.intentHash as `0x${string}`,
   };
-  return ethers.TypedDataEncoder.hash(domain, CHECKPOINT_TYPES, value);
+  const types = CHECKPOINT_TYPES as unknown as Record<string, ethers.TypedDataField[]>;
+  return ethers.TypedDataEncoder.hash(domain, types, value);
 }

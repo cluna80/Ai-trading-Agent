@@ -119,7 +119,7 @@ export class RiskRouterClient {
       deadline: intent.deadline,
     };
 
-    const signature = await agentWalletSigner.signTypedData(domain, TRADE_INTENT_TYPES, value);
+    const signature = await agentWalletSigner.signTypedData(domain, TRADE_INTENT_TYPES as unknown as Record<string, ethers.TypedDataField[]>, value);
 
     // Compute intentHash for logging/correlation
     const intentHash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
