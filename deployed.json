@@ -1,0 +1,11 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "deployedAt": "2026-03-27T09:50:02.140Z",
+  "deployer": "0x13Ef924EB7408e90278B86b659960AFb00DDae61",
+  "AgentRegistry": "0x483066372b6DBbeef80702FAf0D6b28677fBe178",
+  "HackathonVault": "0xEf7BF90aFD82cA2fc0d09aCbDD41B22038B04f1F",
+  "RiskRouter": "0x8E575a59C6A7bA3FB714e726E4a24e4BA10B1EDa",
+  "ReputationRegistry": "0x4223c83DeC37c0e74BA9c227fe8F643c50008028",
+  "ValidationRegistry": "0x7C9f58a1f5Ed4D654A7E63a0142Bb6912DCBb121"
+}
