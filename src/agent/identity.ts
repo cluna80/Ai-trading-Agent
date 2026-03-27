@@ -64,7 +64,7 @@ export async function getAgentId(
     _agentId = existing;
     console.log(`[identity] agentWallet already registered as agentId: ${_agentId}`);
     console.log(`[identity] Add to .env: AGENT_ID=${_agentId}`);
-    return _agentId;
+    return existing;
   }
 
   // Register — mints ERC-721 token

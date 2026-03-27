@@ -23,7 +23,7 @@
 
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { KrakenOrder, KrakenOrderResult, MarketData } from "../types/index.js";
+import { KrakenOrder, KrakenOrderResult, MarketData } from "../types/index";
 
 const execFileAsync = promisify(execFile);
 

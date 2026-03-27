@@ -23,15 +23,15 @@ import { ethers } from "ethers";
 import * as fs from "fs";
 import * as path from "path";
 
-import { TradingStrategy } from "../types/index.js";
-import { getAgentId, getAgentRegistration } from "./identity.js";
-import { MomentumStrategy } from "./strategy.js";
-import { KrakenClient } from "../exchange/kraken.js";
-import { VaultClient } from "../onchain/vault.js";
-import { RiskRouterClient } from "../onchain/riskRouter.js";
-import { ValidationRegistryClient } from "../onchain/validationRegistry.js";
-import { formatExplanation, formatCheckpointLog } from "../explainability/reasoner.js";
-import { generateCheckpoint } from "../explainability/checkpoint.js";
+import { TradingStrategy } from "../types/index";
+import { getAgentId, getAgentRegistration } from "./identity";
+import { MomentumStrategy } from "./strategy";
+import { KrakenClient } from "../exchange/kraken";
+import { VaultClient } from "../onchain/vault";
+import { RiskRouterClient } from "../onchain/riskRouter";
+import { ValidationRegistryClient } from "../onchain/validationRegistry";
+import { formatExplanation, formatCheckpointLog } from "../explainability/reasoner";
+import { generateCheckpoint } from "../explainability/checkpoint";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Config

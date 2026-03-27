@@ -11,7 +11,7 @@
  * cryptographically tied to the on-chain record.
  */
 
-import { MarketData, TradeCheckpoint, TradeDecision } from "../types/index.js";
+import { MarketData, TradeCheckpoint, TradeDecision } from "../types/index";
 
 /**
  * Produce a single human-readable explanation string for a trade decision.

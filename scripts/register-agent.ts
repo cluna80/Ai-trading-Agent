@@ -20,7 +20,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { ethers } from "ethers";
-import { getAgentId } from "../src/agent/identity.js";
+import { getAgentId } from "../src/agent/identity";
 
 async function main() {
   const rpcUrl          = process.env.SEPOLIA_RPC_URL;

@@ -13,7 +13,7 @@
  */
 
 import { ethers } from "ethers";
-import { TradeIntent, SignedTradeIntent } from "../types/index.js";
+import { TradeIntent, SignedTradeIntent } from "../types/index";
 
 const RISK_ROUTER_ABI = [
   "function submitTradeIntent((uint256 agentId, address agentWallet, string pair, string action, uint256 amountUsdScaled, uint256 maxSlippageBps, uint256 nonce, uint256 deadline) intent, bytes signature) external returns (bool approved, string reason)",

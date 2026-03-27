@@ -18,7 +18,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { MarketData, TradeDecision, TradingStrategy } from "../types/index.js";
+import { MarketData, TradeDecision, TradingStrategy } from "../types/index";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Simple momentum strategy (no LLM — good for testing the template)

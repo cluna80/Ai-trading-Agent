@@ -10,7 +10,7 @@
  */
 
 import { ethers } from "ethers";
-import { MarketData, TradeCheckpoint, TradeDecision } from "../types/index.js";
+import { MarketData, TradeCheckpoint, TradeDecision } from "../types/index";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EIP-712 domain and type definitions

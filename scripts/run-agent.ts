@@ -20,4 +20,4 @@
 
 // The agent entrypoint handles everything — this script just ensures .env is
 // loaded and re-exports cleanly as a runnable entrypoint.
-import "../src/agent/index.js";
+import "../src/agent/index";
