@@ -25,7 +25,7 @@ A signature under EIP-712 proves:
 
 ## The checkpoint schema
 
-`src/explainability/checkpoint.ts` defines the typed structure:
+[`src/explainability/checkpoint.ts` L28–L41](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/explainability/checkpoint.ts#L28-L41) defines the typed structure:
 
 ```typescript
 const domain = {
@@ -60,11 +60,13 @@ Why `reasoningHash` instead of the full reasoning string?
 
 ## Generating a checkpoint
 
+[`src/explainability/checkpoint.ts` L59–L67](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/explainability/checkpoint.ts#L59-L67):
+
 ```typescript
 import { generateCheckpoint } from "./src/explainability/checkpoint.js";
 
 const checkpoint = await generateCheckpoint(
-  agentId,         // bytes32 ERC-8004 identity
+  agentId,         // uint256 ERC-721 token ID
   decision,        // TradeDecision from your strategy
   market,          // MarketData at decision time
   signer,          // ethers.Wallet — the agent's signing key

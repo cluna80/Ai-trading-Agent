@@ -27,7 +27,7 @@ Every step is on-chain. Every approval and rejection is a permanent event.
 
 ## The TradeIntent struct
 
-Instead of the agent directly calling Kraken, it first constructs a **signed intent** — a commitment to a specific trade that's been cryptographically authorized:
+Instead of the agent directly calling Kraken, it first constructs a **signed intent** — a commitment to a specific trade that's been cryptographically authorized ([`contracts/RiskRouter.sol` L35–L44](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/contracts/RiskRouter.sol#L35-L44)):
 
 ```solidity
 struct TradeIntent {
@@ -48,7 +48,7 @@ The nonce increments with each approved intent, so an old signature can't be rep
 
 ## Building and signing a TradeIntent (TypeScript)
 
-`src/onchain/riskRouter.ts` handles this:
+[`src/onchain/riskRouter.ts` L72–L145](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/onchain/riskRouter.ts#L72-L145) handles this:
 
 ```typescript
 const riskRouter = new RiskRouterClient(routerAddress, agentWallet, SEPOLIA_CHAIN_ID);

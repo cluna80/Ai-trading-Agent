@@ -21,32 +21,37 @@ Think of it like ENS (Ethereum Name Service), but for AI agents instead of human
 
 ### What gets stored on-chain
 
+From [`contracts/AgentRegistry.sol` L33–L41](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/contracts/AgentRegistry.sol#L33-L41):
+
 ```solidity
-struct AgentMetadata {
-    string name;           // Human-readable agent name
-    string description;    // What the agent does
-    string[] capabilities; // e.g. ["trading", "analysis", "reporting"]
-    address operator;      // Address that controls this agent
-    bytes publicKey;       // Optional: agent's signing public key
+struct AgentRegistration {
+    address operatorWallet;  // Owns the ERC-721 token, pays gas
+    address agentWallet;     // Hot wallet the agent uses for signing
+    string  name;
+    string  description;
+    string[] capabilities;   // e.g. ["trading", "analysis", "eip712-signing"]
+    uint256 registeredAt;
+    bool    active;
 }
 ```
 
 ### What you get back: `agentId`
 
-When you call `registerAgent()`, the contract returns a `bytes32` identifier:
+When you call `register()`, the contract mints an ERC-721 token and returns its ID:
 
 ```solidity
-agentId = keccak256(abi.encodePacked(msg.sender, block.timestamp, nonce));
+agentId = _nextAgentId++;   // auto-incrementing uint256
+_mint(msg.sender, agentId); // ERC-721 mint — you own this token
 ```
 
-This `agentId` becomes the agent's **persistent on-chain identity** — used for:
+This `agentId` (the ERC-721 token ID) becomes the agent's **persistent on-chain identity** — used for:
 - Capital allocation in the Hackathon Vault
 - Risk validation in the Risk Router
 - Cryptographic signing in EIP-712 checkpoints
 
 ---
 
-## Why it matters for hackathon teams
+## Why on-chain agent identity matters
 
 ### 1. The identity layer is already built
 
@@ -64,28 +69,43 @@ This is the "reusable template" angle: the identity, reputation system, and vali
 
 ## The AgentRegistry contract
 
-Here's the core of `contracts/AgentRegistry.sol`:
+Here's the core registration function ([`contracts/AgentRegistry.sol` L92–L120](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/contracts/AgentRegistry.sol#L92-L120)):
 
 ```solidity
-// Register a new agent — returns a unique agentId
-function registerAgent(AgentMetadata calldata meta) external returns (bytes32 agentId) {
-    require(meta.operator == msg.sender, "operator must be caller");
+function register(
+    address agentWallet,
+    string calldata name,
+    string calldata description,
+    string[] calldata capabilities,
+    string calldata agentURI
+) external returns (uint256 agentId) {
+    require(bytes(name).length > 0, "AgentRegistry: name required");
+    require(agentWallet != address(0), "AgentRegistry: invalid agentWallet");
 
-    uint256 nonce = _nonces[msg.sender]++;
-    agentId = keccak256(abi.encodePacked(msg.sender, block.timestamp, nonce));
+    agentId = _nextAgentId++;
+    _mint(msg.sender, agentId);        // ERC-721 mint
+    _setTokenURI(agentId, agentURI);
 
-    _agents[agentId] = meta;
-    _registered[agentId] = true;
+    agents[agentId] = AgentRegistration({
+        operatorWallet: msg.sender,
+        agentWallet: agentWallet,
+        name: name,
+        description: description,
+        capabilities: capabilities,
+        registeredAt: block.timestamp,
+        active: true
+    });
 
-    emit AgentRegistered(agentId, msg.sender, meta.name);
+    walletToAgentId[agentWallet] = agentId;
+    emit AgentRegistered(agentId, msg.sender, agentWallet, name);
 }
 ```
 
 Key properties:
-- **Caller must be the operator**: prevents someone from registering an agent they don't control
-- **Deterministic but unique**: same operator can register multiple agents (different nonces)
-- **Immutable operator + name**: can update description/capabilities but not identity fields
-- **Emits an event**: `AgentRegistered(agentId, operator, name)` — queryable on Etherscan
+- **Mints an ERC-721 token**: your agent identity is a transferable NFT
+- **Two wallet roles**: `operatorWallet` (owns the token) and `agentWallet` (signs trades at runtime)
+- **Auto-incrementing agentId**: starts at 0, stable and unique forever
+- **Emits an event**: `AgentRegistered(agentId, operatorWallet, agentWallet, name)` — queryable on Etherscan
 
 ---
 

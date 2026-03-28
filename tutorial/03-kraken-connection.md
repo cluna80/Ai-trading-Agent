@@ -75,16 +75,18 @@ kraken --sandbox --json --api-key $KRAKEN_API_KEY --api-secret $KRAKEN_API_SECRE
 
 ## How the TypeScript client wraps the CLI
 
-`src/exchange/kraken.ts` spawns the CLI as a subprocess:
+[`src/exchange/kraken.ts` L64–L87](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/exchange/kraken.ts#L64-L87) spawns the CLI as a subprocess:
 
 ```typescript
 private async run(subcommand: string[], isPrivate = false): Promise<unknown> {
-  const args = ["--json"];
-  if (this.sandbox)  args.push("--sandbox");
-  if (isPrivate)     args.push("--api-key", this.apiKey, "--api-secret", this.apiSecret);
+  const args: string[] = [];
+  if (isPrivate && !this.sandbox) {
+    args.push("--api-key", this.apiKey, "--api-secret", this.apiSecret);
+  }
   args.push(...subcommand);
+  args.push("-o", "json");
 
-  const { stdout } = await execFileAsync(KRAKEN_BIN, args);
+  const { stdout } = await execFileAsync(KRAKEN_BIN, args, { timeout: 15000 });
   return JSON.parse(stdout.trim());
 }
 ```
@@ -114,7 +116,7 @@ The CLI ships with a built-in MCP server — the preferred integration for agent
 kraken mcp serve --port 8080
 ```
 
-Then use `KrakenMCPClient` in `src/exchange/kraken.ts`:
+Then use `KrakenMCPClient` in [`src/exchange/kraken.ts`](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/exchange/kraken.ts):
 
 ```typescript
 import { KrakenMCPClient } from "./src/exchange/kraken.js";

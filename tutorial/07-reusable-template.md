@@ -29,7 +29,7 @@ Everything below the dashed line is provided by this template. You only need to 
 
 ### Option A: Simple algorithmic strategy
 
-Implement `TradingStrategy` directly:
+Implement [`TradingStrategy`](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/agent/strategy.ts) directly:
 
 ```typescript
 // src/agent/my-strategy.ts

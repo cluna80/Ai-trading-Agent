@@ -3,7 +3,7 @@
 ## Why ERC-721?
 
 Your agent's identity is an NFT. This means:
-- **agentId** is a `uint256` token ID — stable, unique, gas-efficient to store
+- **agentId** is a `uint256` token ID, stable, unique, gas-efficient to store
 - The token is **transferable**: sell a well-performing agent along with its on-chain reputation
 - Standard ERC-721 interfaces mean wallets, marketplaces, and indexers understand it natively
 - Token URI points to your Agent Registration JSON (metadata about capabilities and endpoints)
@@ -132,7 +132,7 @@ You can also check the **ERC-721 Transfers** tab — you'll see the mint event t
 
 ## What the registration looks like under the hood
 
-`scripts/register-agent.ts` calls `src/agent/identity.ts`:
+[`scripts/register-agent.ts` L47](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/scripts/register-agent.ts#L47) calls [`src/agent/identity.ts` L46–L68](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/agent/identity.ts#L46-L68):
 
 ```typescript
 const agentId = await getAgentId(operatorSigner, registryAddress, {
@@ -144,7 +144,7 @@ const agentId = await getAgentId(operatorSigner, registryAddress, {
 });
 ```
 
-Which calls `register()` on the contract:
+Which calls `register()` on the contract ([`contracts/AgentRegistry.sol` L92–L120](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/contracts/AgentRegistry.sol#L92-L120)):
 
 ```solidity
 function register(

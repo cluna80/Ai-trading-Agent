@@ -46,7 +46,7 @@ The reasoning field is:
 
 ## The `formatExplanation()` function
 
-`src/explainability/reasoner.ts` wraps the decision + market context into a structured log line:
+[`src/explainability/reasoner.ts` L19–L51](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/explainability/reasoner.ts#L19-L51) wraps the decision + market context into a structured log line:
 
 ```typescript
 import { formatExplanation } from "./src/explainability/reasoner.js";
@@ -99,7 +99,7 @@ The key constraint: **reasoning must reference actual market data values**. This
 
 ## The `formatCheckpointLog()` function
 
-When a checkpoint is generated, `formatCheckpointLog()` produces a structured summary for the terminal:
+[`src/explainability/reasoner.ts` L56–L70](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/src/explainability/reasoner.ts#L56-L70) — when a checkpoint is generated, `formatCheckpointLog()` produces a structured summary for the terminal:
 
 ```
 ────────────────────────────────────────────────────────────────────────
