@@ -15,13 +15,10 @@ When building an AI trading agent, you want your code to stay focused on strateg
 ## Installing the Kraken CLI
 
 ```bash
-# Option A: install script (Linux/macOS)
-curl -sSL https://github.com/kraken-oss/kraken-cli/releases/latest/download/install.sh | sh
+# install script (Linux/macOS)
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/krakenfx/kraken-cli/releases/latest/download/kraken-cli-installer.sh | sh
 
-# Option B: download binary from GitHub releases
-# https://github.com/kraken-oss/kraken-cli/releases
-
-# Verify installation
+# check out the version
 kraken --version
 ```
 
