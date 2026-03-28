@@ -16,11 +16,20 @@ Your agent's identity is an NFT. This means:
 - Sepolia ETH (get from [sepoliafaucet.com](https://sepoliafaucet.com))
 - Infura or Alchemy Sepolia RPC URL
 - Kraken CLI installed (see Part 3)
-- `npm install` done in project root
 
 ---
 
-## Step 1: Configure your environment
+## Step 1: Clone the repo and install dependencies
+
+```bash
+git clone https://github.com/Stephen-Kimoi/ai-trading-agent-template
+cd ai-trading-agent-template
+npm install
+```
+
+---
+
+## Step 2: Configure your environment
 
 ```bash
 cp .env.example .env
@@ -46,7 +55,7 @@ For testing, the same key for both is fine.
 
 ---
 
-## Step 2: Deploy the five contracts
+## Step 3: Deploy the five contracts
 
 ```bash
 npx hardhat run scripts/deploy.ts --network sepolia
@@ -81,7 +90,7 @@ Copy all five addresses to your `.env`.
 
 ---
 
-## Step 3: Register your agent
+## Step 4: Register your agent
 
 ```bash
 npm run register
@@ -114,7 +123,7 @@ Add `AGENT_ID=0` (or whatever token ID you received) to your `.env`.
 
 ---
 
-## Step 4: Verify on Etherscan
+## Step 5: Verify on Etherscan
 
 Open Sepolia Etherscan → your `AGENT_REGISTRY_ADDRESS` → **Events** tab:
 
@@ -126,7 +135,7 @@ AgentRegistered
   name:               HackathonTradingAgent
 ```
 
-You can also check the **ERC-721 Transfers** tab — you'll see the mint event transferring token ID `0` from the zero address to your wallet.
+You can also check the **ERC-721 Transfers** tab, you'll see the mint event transferring token ID `0` from the zero address to your wallet.
 
 ---
 
@@ -168,7 +177,7 @@ The token ID is auto-incrementing from 0. Your `agentId` is unique and permanent
 
 ## Template note
 
-> **For hackathon teams:** Once registered, your `agentId` is your identity anchor across all systems — Vault allocation, RiskRouter risk params, EIP-712 checkpoint signing, and ValidationRegistry attestations. Swapping your strategy never touches this layer.
+> **For hackathon teams:** Once registered, your `agentId` is your identity anchor across all systems: Vault allocation, RiskRouter risk params, EIP-712 checkpoint signing, and ValidationRegistry attestations. Swapping your strategy never touches this layer.
 
 ---
 

@@ -155,15 +155,16 @@ export class GroqStrategy implements TradingStrategy {
 
 ## Checklist for a new team
 
-1. `cp .env.example .env` and fill in keys
+1. `git clone https://github.com/Stephen-Kimoi/ai-trading-agent-template && cd ai-trading-agent-template`
 2. `npm install`
-3. `npx hardhat run scripts/deploy.ts --network sepolia` — deploy contracts
-4. Add all 5 contract addresses to `.env`
-5. `npm run register` — register your agent on-chain
-6. Add `AGENT_ID` to `.env`
-7. Write your strategy in `src/agent/my-strategy.ts`
-8. Swap the strategy import in `src/agent/index.ts`
-9. Run the agent and dashboard in two terminals:
+3. `cp .env.example .env` and fill in keys
+4. `npx hardhat run scripts/deploy.ts --network sepolia` — deploy contracts
+5. Add all 5 contract addresses to `.env`
+6. `npm run register` — register your agent on-chain
+7. Add `AGENT_ID` to `.env`
+8. Write your strategy in `src/agent/my-strategy.ts`
+9. Swap the strategy import in `src/agent/index.ts`
+10. Run the agent and dashboard in two terminals:
    ```bash
    npm run run-agent    # Terminal 1
    npm run dashboard    # Terminal 2 → http://localhost:3000
