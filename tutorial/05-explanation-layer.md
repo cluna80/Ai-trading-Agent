@@ -134,7 +134,7 @@ This file is your audit log. After a trading session you can:
 
 ## Template note
 
-> **For hackathon teams:** The explanation layer is already wired into the agent loop — you don't need to call it manually. Your strategy's `reasoning` field is all you need to fill in. Write good reasoning strings and you get good audit logs for free.
+> **Why this matters:** The explanation layer is already wired into the agent loop — you don't need to call it manually. Your strategy's `reasoning` field is the only input required. The stronger and more specific your reasoning strings, the more useful your agent's audit trail becomes — for debugging, for trust, and for building reputation over time.
 
 ---
 

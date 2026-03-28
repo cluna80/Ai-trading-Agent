@@ -86,7 +86,7 @@ VALIDATION_REGISTRY_ADDRESS=0xMNO...
 
 Copy all five addresses to your `.env`.
 
-> **Hackathon note:** If the hackathon provides pre-deployed contract addresses, use those instead and skip this step. Your own contracts are for local testing and development.
+> **Note:** If you're integrating with an existing deployment (e.g. a shared registry or vault someone else deployed), use those contract addresses instead and skip this step. Deploying your own contracts is recommended for local development and testing.
 
 ---
 
@@ -132,7 +132,7 @@ AgentRegistered
   agentId (token ID): 0
   operatorWallet:     0xYourOperatorAddress
   agentWallet:        0xYourAgentWalletAddress
-  name:               HackathonTradingAgent
+  name:               AITradingAgent
 ```
 
 You can also check the **ERC-721 Transfers** tab, you'll see the mint event transferring token ID `0` from the zero address to your wallet.
@@ -145,7 +145,7 @@ You can also check the **ERC-721 Transfers** tab, you'll see the mint event tran
 
 ```typescript
 const agentId = await getAgentId(operatorSigner, registryAddress, {
-  name: "HackathonTradingAgent",
+  name: "AITradingAgent",
   agentWallet: agentWallet.address,
   capabilities: ["trading", "analysis", "eip712-signing"],
   agentURI: "ipfs://...",  // or data URI
@@ -177,7 +177,7 @@ The token ID is auto-incrementing from 0. Your `agentId` is unique and permanent
 
 ## Template note
 
-> **For hackathon teams:** Once registered, your `agentId` is your identity anchor across all systems: Vault allocation, RiskRouter risk params, EIP-712 checkpoint signing, and ValidationRegistry attestations. Swapping your strategy never touches this layer.
+> **Why this matters:** Once registered, your `agentId` is the identity anchor for everything your agent does — capital allocation, risk validation, EIP-712 checkpoint signing, and on-chain attestations. This is how agents build verifiable on-chain reputation over time. Swapping your strategy never touches this layer.
 
 ---
 

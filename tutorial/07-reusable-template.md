@@ -13,7 +13,7 @@
 │                     FIXED SCAFFOLDING                          │
 │                                                                │
 │  Identity     ERC-8004 AgentRegistry (Sepolia)                │
-│  Vault        HackathonVault.allocatedCapital[agentId]        │
+│  Vault        Vault.allocatedCapital[agentId]                 │
 │  Risk         RiskRouter.validateTrade(agentId, size)         │
 │  Exchange     Kraken REST API (paper or live)                 │
 │  Explain      formatExplanation(decision, market)             │

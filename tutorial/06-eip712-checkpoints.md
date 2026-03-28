@@ -143,7 +143,7 @@ The signed checkpoint format is a foundation. With it you can:
 
 ## Template note
 
-> **For hackathon teams:** Checkpoint generation is automatic — the agent loop calls `generateCheckpoint()` after every decision, including HOLDs. You get a full signed audit trail with zero extra code in your strategy.
+> **Why this matters:** Checkpoint generation is automatic — the agent loop calls `generateCheckpoint()` after every decision, including HOLDs. Every action your agent takes is cryptographically signed and tied to its registered `agentId`. This is the foundation for building on-chain reputation: a verifiable, tamper-proof history of decisions that anyone can audit.
 
 ---
 

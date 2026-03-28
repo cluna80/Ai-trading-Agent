@@ -45,7 +45,7 @@ _mint(msg.sender, agentId); // ERC-721 mint — you own this token
 ```
 
 This `agentId` (the ERC-721 token ID) becomes the agent's **persistent on-chain identity** — used for:
-- Capital allocation in the Hackathon Vault
+- Capital allocation in the agent Vault
 - Risk validation in the Risk Router
 - Cryptographic signing in EIP-712 checkpoints
 

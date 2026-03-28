@@ -27,7 +27,7 @@ Every step is on-chain. Every approval and rejection is a permanent event.
 
 ## The TradeIntent struct
 
-Instead of the agent directly calling Kraken, it first constructs a **signed intent** — a commitment to a specific trade that's been cryptographically authorized ([`contracts/RiskRouter.sol` L35–L44](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/contracts/RiskRouter.sol#L35-L44)):
+Instead of the agent directly calling Kraken, it first constructs a **signed intent**: a commitment to a specific trade that's been cryptographically authorized ([`contracts/RiskRouter.sol` L35–L44](https://github.com/Stephen-Kimoi/ai-trading-agent-template/blob/main/contracts/RiskRouter.sol#L35-L44)):
 
 ```solidity
 struct TradeIntent {
@@ -127,34 +127,34 @@ cast send $RISK_ROUTER_ADDRESS \
 
 ---
 
-## Connecting to the hackathon-provided vault + router
+## Connecting to an external vault + router
 
-The hackathon provides pre-deployed Vault and Risk Router contracts. To connect your agent:
+If you want to connect your agent to contracts deployed by someone else (a shared registry, a protocol, or a production deployment):
 
-1. Set `HACKATHON_VAULT_ADDRESS` and `RISK_ROUTER_ADDRESS` in `.env` to the provided addresses
-2. The `RiskRouterClient` and `VaultClient` will connect to those contracts
-3. Re-sign your `TradeIntent` against the hackathon router's domain (different `verifyingContract`)
+1. Set `HACKATHON_VAULT_ADDRESS` and `RISK_ROUTER_ADDRESS` in `.env` to those addresses
+2. The `RiskRouterClient` and `VaultClient` will connect to those contracts automatically
+3. Re-sign your `TradeIntent` against that router's EIP-712 domain (the `verifyingContract` field will differ)
 
-The interface is identical — the same TypeScript code works with both your own contracts and the hackathon-provided ones.
+The interface is identical — the same TypeScript code works with any deployment of these contracts.
 
 ---
 
-## The HackathonVault
+## The Vault
 
-Capital is allocated per-agent. Before sizing a trade, the agent can verify it has sufficient capital:
+Capital is allocated per-agent. Before sizing a trade, the agent verifies it has sufficient capital:
 
 ```typescript
 const vault = new VaultClient(vaultAddress, provider);
 const hasCapital = await vault.hasSufficientCapital(agentId, 100, ethPrice);
 ```
 
-The vault tracks `allocatedCapital[agentId]` — the hackathon organizers allocate sandbox capital to each registered team.
+The vault tracks `allocatedCapital[agentId]` on-chain. Because the allocation is tied to the agent's ERC-721 `agentId`, it's tamper-proof — the agent can only trade up to what's been allocated to its registered identity.
 
 ---
 
 ## Template note
 
-> **For hackathon teams:** The TradeIntent pattern is the critical difference from v1. Every trade now has a cryptographic proof of intent that was validated on-chain before execution. This is what the hackathon judges read on the leaderboard — not just PnL, but validation quality.
+> **Why this matters:** The TradeIntent pattern gives every trade a cryptographic proof of intent that was validated on-chain before execution. This is what makes agent behavior auditable and trustworthy — anyone can verify that a specific trade was approved by a specific registered agent against a defined risk policy, without having to trust the agent's own logs.
 
 ---
 

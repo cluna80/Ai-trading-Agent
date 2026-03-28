@@ -2,7 +2,7 @@
 
 ## Why the CLI, not raw REST?
 
-The Kraken CLI is the correct integration point for this hackathon challenge. It handles all exchange plumbing automatically:
+When building an AI trading agent, you want your code to stay focused on strategy and decision-making: not exchange plumbing. The Kraken CLI handles all of that automatically:
 
 - Cryptographic nonce management (no clock drift issues)
 - HMAC-SHA512 request signing (no manual auth code)
@@ -109,7 +109,7 @@ const result = await kraken.placeOrder({
 
 ## MCP server mode (alternative)
 
-The CLI ships with a built-in MCP server — the preferred integration for agents that already use the Model Context Protocol:
+The CLI ships with a built-in MCP server, the preferred integration for agents that already use the Model Context Protocol:
 
 ```bash
 # Start the MCP server
@@ -143,7 +143,7 @@ The agent reads this at startup. No code changes needed to switch modes.
 
 ## Template note
 
-> **For hackathon teams:** The `KrakenClient` is the exchange adapter layer. Your strategy returns a `TradeDecision` — the agent loop calls `placeOrder()` automatically. You never touch the CLI directly.
+> **Template note:** The `KrakenClient` is the exchange adapter layer. Your strategy returns a `TradeDecision` — the agent loop calls `placeOrder()` automatically. You never touch the CLI directly. Swapping Kraken for a different exchange only requires replacing this one file.
 
 ---
 
