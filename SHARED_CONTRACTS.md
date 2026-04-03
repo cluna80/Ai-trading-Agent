@@ -71,9 +71,9 @@ await vault.claimAllocation(process.env.AGENT_ID!);
 ```
 
 Rules:
-- One claim per `agentId` — the contract enforces this on-chain
-- The agent must be registered on AgentRegistry before claiming
-- If the vault is underfunded, the transaction reverts — check back shortly
+• One claim per `agentId` — the contract enforces this on-chain
+• The agent must be registered on AgentRegistry before claiming
+• If the vault is underfunded, the transaction reverts — check back shortly
 
 Verify your allocation:
 
