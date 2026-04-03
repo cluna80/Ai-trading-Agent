@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Trading Agents — ERC-8004 Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+
+  <style>
+    :root {
+      --bg:          #04080f;
+      --bg2:         #080e1a;
+      --bg3:         #0c1525;
+      --border:      #0e2040;
+      --border-glow: #1a4080;
+      --green:       #00e676;
+      --green-dim:   #00a152;
+      --blue:        #2979ff;
+      --blue-dim:    #1a4aaa;
+      --amber:       #ffab00;
+      --red:         #ff1744;
+      --text:        #c8d8f0;
+      --text-dim:    #4a6080;
+      --text-muted:  #2a3a50;
+      --gold:        #ffd700;
+      --silver:      #c0c8d8;
+      --bronze:      #cd7f32;
+      --font-mono:   'Share Tech Mono', monospace;
+      --font-display:'Orbitron', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 14px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(41,121,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41,121,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Scanlines */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 24px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header-left { display: flex; flex-direction: column; gap: 6px; }
+
+    .header-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--blue);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .network-badge {
+      background: rgba(41,121,255,0.12);
+      border: 1px solid var(--blue-dim);
+      color: var(--blue);
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 3vw, 1.7rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(41,121,255,0.4);
+      line-height: 1.2;
+    }
+
+    h1 span { color: var(--green); }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: var(--green);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px var(--green); }
+      50% { opacity: 0.4; transform: scale(0.85); box-shadow: 0 0 3px var(--green); }
+    }
+
+    .refresh-info {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    .refresh-info b { color: var(--text); }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 2px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:first-child { border-radius: 4px 0 0 4px; }
+    .stat-card:last-child { border-radius: 0 4px 4px 0; }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+
+    .stat-card.green::before { background: var(--green); }
+    .stat-card.blue::before  { background: var(--blue); }
+    .stat-card.amber::before { background: var(--amber); }
+    .stat-card.red::before   { background: var(--red); }
+
+    .stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .stat-card.green .stat-value { color: var(--green); text-shadow: 0 0 20px rgba(0,230,118,0.3); }
+    .stat-card.blue  .stat-value { color: var(--blue);  text-shadow: 0 0 20px rgba(41,121,255,0.3); }
+    .stat-card.amber .stat-value { color: var(--amber); text-shadow: 0 0 20px rgba(255,171,0,0.3); }
+
+    /* ── Error banner ── */
+    .error-banner {
+      display: none;
+      background: rgba(255,23,68,0.08);
+      border: 1px solid rgba(255,23,68,0.3);
+      color: var(--red);
+      padding: 10px 16px;
+      font-size: 0.78rem;
+      margin-bottom: 16px;
+      border-radius: 2px;
+    }
+
+    .error-banner.visible { display: block; }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .table-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-title {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .agent-count {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    .agent-count b { color: var(--green); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      font-family: var(--font-mono);
+      font-weight: normal;
+    }
+
+    thead th.right { text-align: right; }
+    thead th.center { text-align: center; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(41,121,255,0.04); }
+
+    tbody tr.inactive { opacity: 0.45; }
+
+    tbody tr.rank-1 { background: rgba(255,215,0,0.04); }
+    tbody tr.rank-2 { background: rgba(192,200,216,0.03); }
+    tbody tr.rank-3 { background: rgba(205,127,50,0.04); }
+
+    tbody tr.rank-1:hover { background: rgba(255,215,0,0.07); }
+    tbody tr.rank-2:hover { background: rgba(192,200,216,0.06); }
+    tbody tr.rank-3:hover { background: rgba(205,127,50,0.07); }
+
+    td {
+      padding: 13px 16px;
+      font-size: 0.8rem;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    td.right { text-align: right; }
+    td.center { text-align: center; }
+
+    .rank-cell {
+      width: 52px;
+      text-align: center;
+    }
+
+    .rank-medal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .medal-1 {
+      background: rgba(255,215,0,0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 10px rgba(255,215,0,0.2);
+    }
+
+    .medal-2 {
+      background: rgba(192,200,216,0.1);
+      border: 1px solid var(--silver);
+      color: var(--silver);
+    }
+
+    .medal-3 {
+      background: rgba(205,127,50,0.12);
+      border: 1px solid var(--bronze);
+      color: var(--bronze);
+    }
+
+    .medal-n {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .agent-name {
+      font-size: 0.88rem;
+      color: #fff;
+      font-weight: normal;
+    }
+
+    .agent-id {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .wallet-addr {
+      font-size: 0.7rem;
+      color: var(--blue-dim);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 2px;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+    }
+
+    .tag-claimed {
+      background: rgba(0,230,118,0.1);
+      border: 1px solid rgba(0,230,118,0.3);
+      color: var(--green);
+    }
+
+    .tag-unclaimed {
+      background: rgba(255,171,0,0.08);
+      border: 1px solid rgba(255,171,0,0.25);
+      color: var(--amber);
+    }
+
+    .eth-amount {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .score-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .score-val {
+      min-width: 28px;
+      text-align: right;
+    }
+
+    .score-bar {
+      width: 60px;
+      height: 4px;
+      background: var(--bg3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    .score-fill.green { background: var(--green); box-shadow: 0 0 6px rgba(0,230,118,0.5); }
+    .score-fill.blue  { background: var(--blue);  box-shadow: 0 0 6px rgba(41,121,255,0.5); }
+
+    .zero { color: var(--text-muted); }
+
+    .trade-count {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+    }
+
+    .trade-count.active { color: var(--text); }
+    .trade-count.zero-trades { color: var(--text-muted); }
+
+    .date-cell {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Skeleton ── */
+    .skeleton {
+      display: none;
+      height: 52px;
+      background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .skeleton.visible { display: block; }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: none;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .empty-state.visible { display: block; }
+
+    .empty-state-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .empty-state h3 {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      max-width: 340px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-contracts {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .contract-line {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .contract-line b { color: var(--text-dim); }
+
+    .contract-line a {
+      color: var(--blue-dim);
+      text-decoration: none;
+    }
+
+    .contract-line a:hover { color: var(--blue); }
+
+    .footer-note {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .stats-bar { flex-wrap: wrap; }
+      .stat-card { flex: 1 1 calc(50% - 2px); }
+      .stat-card:first-child { border-radius: 4px 0 0 0; }
+      .stat-card:last-child  { border-radius: 0 0 4px 4px; }
+
+      thead th.hide-mobile,
+      td.hide-mobile { display: none; }
+
+      td { padding: 10px 10px; }
+      thead th { padding: 8px 10px; }
+
+      .score-bar { width: 36px; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1rem; }
+      .header-eyebrow { font-size: 0.62rem; }
+    }
+
+    /* Appear animation */
+    .appear {
+      animation: appear 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes appear {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div class="header-eyebrow">
+        <span>Lablab.ai Hackathon</span>
+        <span class="network-badge">Sepolia Testnet</span>
+      </div>
+      <h1>AI Trading Agents &mdash; <span>ERC-8004</span> Leaderboard</h1>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+      <div class="refresh-info">
+        Updated <b id="last-updated">—</b> ago &nbsp;·&nbsp; next refresh in <b id="countdown">30s</b>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-card green">
+      <div class="stat-label">Agents Registered</div>
+      <div class="stat-value" id="stat-agents">—</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Capital Claimed</div>
+      <div class="stat-value" id="stat-claimed">—</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">Active Traders</div>
+      <div class="stat-value" id="stat-active">—</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Allocation / Team</div>
+      <div class="stat-value">0.05 ETH</div>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  <div class="error-banner" id="error-banner">
+    RPC error — showing last known data. Will retry on next refresh.
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-header-row">
+      <div class="table-title">Rankings</div>
+      <div class="agent-count">Showing <b id="showing-count">0</b> agents</div>
+    </div>
+
+    <!-- Skeleton rows (shown while loading) -->
+    <div id="skeletons">
+      <div class="skeleton visible"></div>
+      <div class="skeleton visible"></div>
+      <div class="skeleton visible"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-state-icon">⬡</div>
+      <h3>No Agents Registered Yet</h3>
+      <p>Once teams register on the AgentRegistry contract, they will appear here ranked by validation score and reputation.</p>
+    </div>
+
+    <!-- Data table -->
+    <table id="leaderboard-table" style="display:none;">
+      <thead>
+        <tr>
+          <th class="rank-cell center">#</th>
+          <th>Agent</th>
+          <th class="hide-mobile">Operator</th>
+          <th class="center">Capital</th>
+          <th class="right">Trades</th>
+          <th class="right">Validation</th>
+          <th class="right">Reputation</th>
+          <th class="right hide-mobile">Registered</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-contracts">
+      <div class="contract-line"><b>AgentRegistry</b> &nbsp;<a href="https://sepolia.etherscan.io/address/0x97b07dDc405B0c28B17559aFFE63BdB3632d0ca3#code" target="_blank">0x97b07d…0ca3</a></div>
+      <div class="contract-line"><b>HackathonVault</b> &nbsp;<a href="https://sepolia.etherscan.io/address/0x0E7CD8ef9743FEcf94f9103033a044caBD45fC90#code" target="_blank">0x0E7CD8…fC90</a></div>
+      <div class="contract-line"><b>RiskRouter</b> &nbsp;<a href="https://sepolia.etherscan.io/address/0xd6A6952545FF6E6E6681c2d15C59f9EB8F40FdBC#code" target="_blank">0xd6A695…FdBC</a></div>
+      <div class="contract-line"><b>ValidationRegistry</b> &nbsp;<a href="https://sepolia.etherscan.io/address/0x92bF63E5C7Ac6980f237a7164Ab413BE226187F1#code" target="_blank">0x92bF63…87F1</a></div>
+      <div class="contract-line"><b>ReputationRegistry</b> &nbsp;<a href="https://sepolia.etherscan.io/address/0x423a9904e39537a9997fbaF0f220d79D7d545763#code" target="_blank">0x423a99…5763</a></div>
+    </div>
+    <div class="footer-note">
+      Ranked by validation score · tiebreak by reputation<br>
+      Reads live from Sepolia · refreshes every 30s
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const RPC_URL    = "https://ethereum-sepolia-rpc.publicnode.com";
+const REFRESH_MS = 30000;
+
+const ADDRESSES = {
+  agentRegistry:      "0x97b07dDc405B0c28B17559aFFE63BdB3632d0ca3",
+  hackathonVault:     "0x0E7CD8ef9743FEcf94f9103033a044caBD45fC90",
+  riskRouter:         "0xd6A6952545FF6E6E6681c2d15C59f9EB8F40FdBC",
+  reputationRegistry: "0x423a9904e39537a9997fbaF0f220d79D7d545763",
+  validationRegistry: "0x92bF63E5C7Ac6980f237a7164Ab413BE226187F1",
+};
+
+const ABIS = {
+  agentRegistry: [
+    "function totalAgents() view returns (uint256)",
+    "function getAgent(uint256 agentId) view returns (address operatorWallet, address agentWallet, string name, string description, string[] capabilities, uint256 registeredAt, bool active)",
+  ],
+  vault: [
+    "function hasClaimed(uint256 agentId) view returns (bool)",
+    "function getBalance(uint256 agentId) view returns (uint256)",
+  ],
+  riskRouter: [
+    "function getTradeRecord(uint256 agentId) view returns (uint256 count, uint256 windowStart)",
+  ],
+  validation: [
+    "function getAverageValidationScore(uint256 agentId) view returns (uint256)",
+    "function attestationCount(uint256 agentId) view returns (uint256)",
+  ],
+  reputation: [
+    "function getAverageScore(uint256 agentId) view returns (uint256)",
+  ],
+};
+
+// ── State ───────────────────────────────────────────────────────────────────
+let lastUpdatedAt   = null;
+let countdownSecs   = 30;
+let timerInterval   = null;
+let refreshTimeout  = null;
+
+// ── DOM refs ────────────────────────────────────────────────────────────────
+const $lastUpdated  = document.getElementById("last-updated");
+const $countdown    = document.getElementById("countdown");
+const $statAgents   = document.getElementById("stat-agents");
+const $statClaimed  = document.getElementById("stat-claimed");
+const $statActive   = document.getElementById("stat-active");
+const $showingCount = document.getElementById("showing-count");
+const $skeletons    = document.getElementById("skeletons");
+const $emptyState   = document.getElementById("empty-state");
+const $table        = document.getElementById("leaderboard-table");
+const $tbody        = document.getElementById("leaderboard-body");
+const $errorBanner  = document.getElementById("error-banner");
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function shortAddr(addr) {
+  return addr.slice(0, 6) + "…" + addr.slice(-4);
+}
+
+function formatDate(unixSecs) {
+  const d = new Date(Number(unixSecs) * 1000);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+function secondsAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return s + "s";
+  if (s < 3600) return Math.floor(s/60) + "m";
+  return Math.floor(s/3600) + "h";
+}
+
+function scoreBar(score, colorClass) {
+  const pct = Math.min(100, Number(score));
+  const val = pct === 0
+    ? `<span class="zero">—</span>`
+    : pct;
+  return `
+    <div class="score-bar-wrap">
+      <span class="score-val">${val}</span>
+      <div class="score-bar">
+        <div class="score-fill ${colorClass}" style="width:${pct}%"></div>
+      </div>
+    </div>`;
+}
+
+function rankMedal(rank) {
+  if (rank === 1) return `<span class="rank-medal medal-1">1</span>`;
+  if (rank === 2) return `<span class="rank-medal medal-2">2</span>`;
+  if (rank === 3) return `<span class="rank-medal medal-3">3</span>`;
+  return `<span class="rank-medal medal-n">${rank}</span>`;
+}
+
+// ── Fetch data ───────────────────────────────────────────────────────────────
+async function fetchLeaderboard() {
+  const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+  const registry   = new ethers.Contract(ADDRESSES.agentRegistry,      ABIS.agentRegistry, provider);
+  const vault      = new ethers.Contract(ADDRESSES.hackathonVault,      ABIS.vault,         provider);
+  const router     = new ethers.Contract(ADDRESSES.riskRouter,          ABIS.riskRouter,    provider);
+  const validation = new ethers.Contract(ADDRESSES.validationRegistry,  ABIS.validation,    provider);
+  const reputation = new ethers.Contract(ADDRESSES.reputationRegistry,  ABIS.reputation,    provider);
+
+  const total = await registry.totalAgents();
+  const count = Number(total);
+
+  if (count === 0) return [];
+
+  const ids = Array.from({ length: count }, (_, i) => i);
+
+  const rows = await Promise.all(ids.map(async (id) => {
+    const [agent, claimed, balance, tradeRec, valScore, attCount, repScore] = await Promise.all([
+      registry.getAgent(id),
+      vault.hasClaimed(id),
+      vault.getBalance(id),
+      router.getTradeRecord(id).catch(() => ({ count: 0 })),
+      validation.getAverageValidationScore(id).catch(() => ethers.BigNumber.from(0)),
+      validation.attestationCount(id).catch(() => ethers.BigNumber.from(0)),
+      reputation.getAverageScore(id).catch(() => ethers.BigNumber.from(0)),
+    ]);
+
+    return {
+      id,
+      name:        agent.name || `Agent #${id}`,
+      operator:    agent.operatorWallet,
+      registeredAt:agent.registeredAt,
+      active:      agent.active,
+      claimed:     claimed,
+      balanceEth:  parseFloat(ethers.utils.formatEther(balance)).toFixed(4),
+      trades:      Number(tradeRec.count || 0),
+      valScore:    Number(valScore),
+      attestations:Number(attCount),
+      repScore:    Number(repScore),
+    };
+  }));
+
+  // Sort: validation score desc, reputation as tiebreaker
+  rows.sort((a, b) => {
+    if (b.valScore !== a.valScore) return b.valScore - a.valScore;
+    return b.repScore - a.repScore;
+  });
+
+  return rows;
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function renderRows(rows) {
+  $statAgents.textContent  = rows.length;
+  $statClaimed.textContent = rows.filter(r => r.claimed).length;
+  $statActive.textContent  = rows.filter(r => r.trades > 0).length;
+  $showingCount.textContent = rows.length;
+
+  if (rows.length === 0) {
+    $skeletons.innerHTML = "";
+    $table.style.display = "none";
+    $emptyState.classList.add("visible");
+    return;
+  }
+
+  $emptyState.classList.remove("visible");
+  $table.style.display = "table";
+  $skeletons.innerHTML = "";
+
+  $tbody.innerHTML = rows.map((r, i) => {
+    const rank = i + 1;
+    const rowClass = [
+      rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "",
+      (r.claimed && r.trades === 0) ? "inactive" : "",
+      "appear"
+    ].filter(Boolean).join(" ");
+
+    const tradeClass = r.trades > 0 ? "active" : "zero-trades";
+    const capitalTag = r.claimed
+      ? `<span class="tag tag-claimed">Claimed</span><div class="eth-amount">${r.balanceEth} ETH</div>`
+      : `<span class="tag tag-unclaimed">Pending</span>`;
+
+    return `
+      <tr class="${rowClass}" style="animation-delay:${i * 0.04}s">
+        <td class="rank-cell center">${rankMedal(rank)}</td>
+        <td>
+          <div class="agent-name">${escHtml(r.name)}</div>
+          <div class="agent-id">ID: ${r.id}</div>
+        </td>
+        <td class="hide-mobile">
+          <div class="wallet-addr">${shortAddr(r.operator)}</div>
+        </td>
+        <td class="center">${capitalTag}</td>
+        <td class="right">
+          <span class="trade-count ${tradeClass}">${r.trades > 0 ? r.trades : "—"}</span>
+        </td>
+        <td class="right">${scoreBar(r.valScore, "green")}</td>
+        <td class="right">${scoreBar(r.repScore, "blue")}</td>
+        <td class="right hide-mobile">
+          <span class="date-cell">${formatDate(r.registeredAt)}</span>
+        </td>
+      </tr>`;
+  }).join("");
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ── Refresh loop ─────────────────────────────────────────────────────────────
+function startCountdown() {
+  countdownSecs = REFRESH_MS / 1000;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    countdownSecs = Math.max(0, countdownSecs - 1);
+    $countdown.textContent = countdownSecs + "s";
+    if (lastUpdatedAt) {
+      $lastUpdated.textContent = secondsAgo(lastUpdatedAt);
+    }
+  }, 1000);
+}
+
+async function refresh() {
+  // Show skeletons only on first load (table not yet visible)
+  if ($table.style.display === "none" && $emptyState.style.display !== "block") {
+    for (let i = 0; i < 3; i++) {
+      const sk = document.createElement("div");
+      sk.className = "skeleton visible";
+      $skeletons.appendChild(sk);
+    }
+  }
+
+  try {
+    const rows = await fetchLeaderboard();
+    renderRows(rows);
+    $errorBanner.classList.remove("visible");
+    lastUpdatedAt = Date.now();
+    $lastUpdated.textContent = "0s";
+  } catch (err) {
+    console.error("Fetch error:", err);
+    $errorBanner.classList.add("visible");
+    $skeletons.innerHTML = "";
+  }
+
+  startCountdown();
+  clearTimeout(refreshTimeout);
+  refreshTimeout = setTimeout(refresh, REFRESH_MS);
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+refresh();
+</script>
+</body>
+</html>
