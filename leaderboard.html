@@ -673,7 +673,7 @@
     <div class="stat-card violet">
       <span class="stat-icon">◇</span>
       <div class="stat-label">Allocation / Team</div>
-      <div class="stat-value" style="color:var(--violet)">0.05 <span style="font-size:1rem;opacity:0.6">ETH</span></div>
+      <div class="stat-value" style="color:var(--violet)" id="stat-alloc">… <span style="font-size:1rem;opacity:0.6">ETH</span></div>
     </div>
   </div>
 
@@ -795,8 +795,9 @@
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
 const RPCS = [
-  "https://rpc.sepolia.org",
+  "https://sepolia.infura.io/v3/882b351c24b14372b17cb9ccc92817fa",
   "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://rpc.sepolia.org",
   "https://sepolia.drpc.org",
 ];
 
@@ -818,6 +819,7 @@ const ABI = {
   vault:      [
     "function hasClaimed(uint256) view returns (bool)",
     "function getBalance(uint256) view returns (uint256)",
+    "function allocationPerTeam() view returns (uint256)",
   ],
   router:     ["function getTradeRecord(uint256) view returns (uint256,uint256)"],
   validation: [
@@ -835,6 +837,7 @@ const el = {
   statAgents:   $("stat-agents"),
   statClaimed:  $("stat-claimed"),
   statActive:   $("stat-active"),
+  statAlloc:    $("stat-alloc"),
   showingCount: $("showing-count"),
   skeletons:    $("skeleton-wrap"),
   emptyState:   $("empty-state"),
@@ -901,7 +904,14 @@ async function fetchData() {
   const val = new ethers.Contract(ADDR.validation, ABI.validation, provider);
   const rep = new ethers.Contract(ADDR.reputation, ABI.reputation, provider);
 
-  const total = Number(await reg.totalAgents());
+  const [total, allocPerTeam] = await Promise.all([
+    reg.totalAgents().then(Number),
+    vlt.allocationPerTeam().catch(() => null),
+  ]);
+  if (allocPerTeam) {
+    el.statAlloc.innerHTML = parseFloat(ethers.utils.formatEther(allocPerTeam)).toFixed(3)
+      + ' <span style="font-size:1rem;opacity:0.6">ETH</span>';
+  }
   if (total === 0) return [];
 
   const rows = await Promise.all(
