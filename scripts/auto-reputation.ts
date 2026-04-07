@@ -33,7 +33,7 @@ const REPUTATION_ADDR = "0x423a9904e39537a9997fbaF0f220d79D7d545763";
 // Address: 0xC15FdA1D429C758C01a2084AacfACa90Ff15a2f1
 const JUDGE_WALLET_SEED = "lablab-hackathon-judge-wallet-v1";
 
-const MIN_JUDGE_BALANCE = ethers.parseEther("0.002");
+const MIN_JUDGE_BALANCE = ethers.parseEther("0.005");
 
 // ABIs
 const REGISTRY_ABI = [
@@ -158,6 +158,13 @@ async function main() {
 
       const metrics: AgentMetrics = { validationScore: valScore, tradeCount, claimed };
       const score   = computeScore(metrics);
+
+      // Skip fully inactive agents -- contract rejects score 0
+      if (score === 0) {
+        console.log(label + " " + agentName + " -- score 0 (no activity), skipping");
+        continue;
+      }
+
       const comment = scoreComment(metrics, score);
 
       // outcomeRef -- deterministic per (agentId + run timestamp rounded to 4h)
