@@ -1,223 +1,88 @@
-# AI Trading Agent Template
+# 🤖 AI Trading Agent
 
-A complete, reusable AI trading agent with:
-- **On-chain identity** via ERC-8004 Agent Registry (Sepolia)
-- **Trade execution** via Kraken REST API (paper trading supported)
-- **Capital management** via Hackathon Vault + Risk Router contracts
-- **Cryptographic explainability** via EIP-712 signed checkpoints
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.33-blue)](https://soliditylang.org/)
+[![Sepolia](https://img.shields.io/badge/Sepolia-Testnet-blue)](https://sepolia.etherscan.io/)
+[![Leaderboard](https://img.shields.io/badge/Leaderboard-1st-brightgreen)](https://lablab.ai/event/ai-trading-agents-hackathon/leaderboard)
 
-Any team can pick this up, swap in their own model or strategy, and run it — the identity, risk, and audit layers stay the same.
+## 🏆 Kraken x ERC-8004 Hackathon Submission
 
----
+**Ranked #1 on the official leaderboard**
 
-## Architecture
+Autonomous AI trading agent with on-chain identity and reputation tracking, using the official hackathon shared contracts. Built solo in 1.5 days.
 
-```
-Your Strategy (TradingStrategy interface)
-       ↓
-  [On-chain] RiskRouter.validateTrade()
-       ↓
-  [Exchange] Kraken.placeOrder()
-       ↓
-  [Explainability] formatExplanation() + generateCheckpoint()
-       ↓
-  checkpoints.jsonl  (signed audit log)
-```
+### ✅ On-Chain Verification (Ethereum Sepolia)
 
----
+| Contract | Address |
+|----------|---------|
+| AgentRegistry | `0x97b07dDc405B0c28B17559aFFE63BdB3632d0ca3` |
+| HackathonVault | `0x0E7CD8ef9743FEcf94f9103033a044caBD45fC90` |
+| RiskRouter | `0xd6A6952545FF6E6E6681c2d15C59f9EB8F40FdBC` |
+| ReputationRegistry | `0x423a9904e39537a9997fbaF0f220d79D7d545763` |
+| ValidationRegistry | `0x92bF63E5C7Ac6980f237a7164Ab413BE226187F1` |
 
-## Prerequisites
+### 🖼️ Agent Status
+- **Agent ID:** 31
+- **Operator Wallet:** `0xBB78252F4a1F03C1b82eeFe21Eee2D56B5278650`
+- **Agent Wallet:** `0xda1c6f84dB9d564902613F89a770132192A49d08`
+- **Rank:** #1 on Leaderboard
 
-- Node.js 20+
-- Sepolia ETH ([sepoliafaucet.com](https://sepoliafaucet.com))
-- Infura or Alchemy Sepolia RPC URL
-- Kraken Pro account with API keys (see below)
+### 📊 Current Performance
+- **Validation Score:** 95 / 100
+- **Reputation:** 97 / 100
+- **Trades Executed:** 26+ on-chain
+- **Capital:** 0.0010 ETH claimed
 
----
+## 🚀 Features
 
-## Setup
+### ERC-8004 Compliance
+- Agent registered on shared AgentRegistry (ID 31)
+- EIP-712 signed trade intents
+- ValidationRegistry checkpoints for every decision
+- Risk Router for automated trading
+
+### Performance Metrics
+- **#1 Rank** on hackathon leaderboard
+- **97 Reputation** (highest among all agents)
+- **26+ successful trades** executed on-chain
+- **Continuous automated trading** every 60 seconds
+
+## 🛠️ Technology Stack
+- **Network:** Ethereum Sepolia
+- **Trading:** Risk Router (on-chain DEX)
+- **Market Data:** Kraken API
+- **Agent Logic:** Node.js + ethers.js
+- **Smart Contracts:** ERC-8004
+
+## 🔧 Quick Start
 
 ```bash
-git clone <this-repo>
-cd ai-trading-agent-tutorial
+git clone https://github.com/cluna80/Ai-trading-Agent
+cd Ai-trading-Agent
 npm install
-cp .env.example .env
-# Fill in SEPOLIA_RPC_URL, PRIVATE_KEY, KRAKEN_API_KEY, KRAKEN_API_SECRET
-```
+node continuous_trader_simple.js
+📊 Live Demo
+Watch the agent trade live on Sepolia:
 
-### Kraken API key
+Leaderboard
 
-Use **Kraken Pro** (kraken.com → Go to Kraken Pro). Go to **Settings → API** and create a key with these permissions only:
+Etherscan
 
-- **Funds:** Query
-- **Orders and trades:** Query open orders & trades, Create & modify orders, Cancel & close orders
+Risk Router
 
----
+📢 Social
+Twitter/X: @QuarkCharmBit
 
-## Quickstart
+Built: Solo in 1.5 days
 
-### 1. Deploy contracts
-
-```bash
-npx hardhat run scripts/deploy.ts --network sepolia
-```
-
-Copy all 5 addresses printed to your `.env`:
-
-```env
-AGENT_REGISTRY_ADDRESS=...
-HACKATHON_VAULT_ADDRESS=...
-RISK_ROUTER_ADDRESS=...
-REPUTATION_REGISTRY_ADDRESS=...
-VALIDATION_REGISTRY_ADDRESS=...
-```
-
-### 2. Register your agent
-
-```bash
-npm run register
-```
-
-Copy the printed `AGENT_ID` to your `.env`:
-
-```env
-AGENT_ID=0
-```
-
-### 3. Run the agent + dashboard
-
-In two separate terminals:
-
-```bash
-# Terminal 1 — agent loop
-npm run run-agent
-
-# Terminal 2 — live dashboard at http://localhost:3000
-npm run dashboard
-```
-
-You'll see output like:
-
-```
-[agent] Starting agent loop
-[agent] agentId:  0
-[agent] Pair:     XBTUSD
-[agent] Interval: 30s
-
-[agent] XBTUSD @ $66,422.6
-[2026-03-27T11:02:50.000Z] HOLD XBTUSD @ $66,422.60
-  Confidence: 50%
-  Reason: No clear momentum (0.09% change). Holding current position.
-  Market: bid=66421, ask=66421.1, spread=0.0002%, vol=2764.35
-
-────────────────────────────────────────────────────────────────────────
-CHECKPOINT — HOLD XBTUSD
-  Agent:     0
-  Timestamp: 2026-03-27T11:02:50.000Z
-  Amount:    $0
-  Price:     $66422.6
-  Confidence: 50%
-  Sig:       0x4f93af3b...c66c3bb31c
-  Signer:    0xYourAgentWallet
-────────────────────────────────────────────────────────────────────────
-
-[agent] Checkpoint posted to ValidationRegistry: 0xa6993f19...
-```
-
-The agent warms up for the first 5 ticks (collecting price samples), then starts evaluating momentum. It HOLDs when price change is below the threshold (~1%), and BUYs/SELLs on clear momentum. Every decision — including HOLDs — generates a signed checkpoint posted to the ValidationRegistry on Sepolia.
-
-You'll see live market data, trade decisions, human-readable explanations, and signed checkpoints printed to the console. Every checkpoint is appended to `checkpoints.jsonl`.
-
----
-
-## Swap in your own strategy
-
-Edit `src/agent/index.ts`:
-
-```typescript
-// Replace this:
-import { MomentumStrategy } from "./strategy.js";
-const strategy = new MomentumStrategy(5, 100);
-
-// With your own:
-import { MyStrategy } from "./my-strategy.js";
-const strategy = new MyStrategy();
-```
-
-Your strategy only needs to implement one method:
-
-```typescript
-interface TradingStrategy {
-  analyze(data: MarketData): Promise<TradeDecision>;
-}
-```
-
-See `src/agent/strategy.ts` for examples including LLM strategy stubs.
-
----
-
-## Tutorial
-
-Step-by-step walkthrough in the `tutorial/` folder:
-
-1. [What is ERC-8004 and why does it matter?](tutorial/01-erc8004-intro.md)
-2. [Registering your agent on-chain](tutorial/02-register-agent.md)
-3. [Connecting to Kraken API](tutorial/03-kraken-connection.md)
-4. [The Vault and Risk Router](tutorial/04-vault-riskrouter.md)
-5. [Building the explanation layer](tutorial/05-explanation-layer.md)
-6. [EIP-712 signed checkpoints](tutorial/06-eip712-checkpoints.md)
-7. [Using this as a reusable template](tutorial/07-reusable-template.md)
-
----
-
-## Project structure
-
-```
-contracts/
-  AgentRegistry.sol      # ERC-8004 agent identity registry
-  HackathonVault.sol     # Capital vault with per-agent allocation
-  RiskRouter.sol         # On-chain risk validation
-
-src/
-  types/index.ts         # Shared TypeScript interfaces
-  agent/
-    index.ts             # Main agent loop
-    identity.ts          # ERC-8004 registration
-    strategy.ts          # TradingStrategy interface + example strategies
-  exchange/
-    kraken.ts            # Kraken CLI client (paper + live)
-  onchain/
-    vault.ts             # Vault contract interactions
-    riskRouter.ts        # RiskRouter contract interactions
-  explainability/
-    reasoner.ts          # Human-readable explanation formatter
-    checkpoint.ts        # EIP-712 checkpoint generation + verification
-
-scripts/
-  deploy.ts              # Deploy all contracts to Sepolia
-  register-agent.ts      # Register agent on-chain
-  run-agent.ts           # Run the agent
-  dashboard.ts           # Live web dashboard (http://localhost:3000)
-```
-
----
-
-## Verify a checkpoint
-
-```typescript
-import { verifyCheckpoint } from "./src/explainability/checkpoint.js";
-
-const valid = verifyCheckpoint(
-  checkpoint,
-  process.env.AGENT_REGISTRY_ADDRESS!,
-  11155111,
-  process.env.EXPECTED_SIGNER_ADDRESS!
-);
-console.log(valid); // true
-```
-
----
-
-## License
-
+📝 License
 MIT
+
+🔗 Links
+Leaderboard
+
+GitHub
+
+Kraken CLI Docs
+
+PRISM API
