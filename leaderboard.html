@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="application/javascript"></script>
   <style>
     :root {
       --bg:        #0b0f19;
@@ -35,8 +35,65 @@
       --sans:      'Syne', sans-serif;
     }
 
+    /* ── Light mode overrides ───────────────────── */
+    [data-theme="light"] {
+      --bg:        #f0f4f8;
+      --surface:   #ffffff;
+      --surface2:  #e8edf3;
+      --surface3:  #dde3ec;
+      --border:    #cbd5e1;
+      --border2:   #b0bcd0;
+      --cyan:      #0369a1;
+      --cyan-dim:  #0284c7;
+      --cyan-glow: rgba(3,105,161,0.08);
+      --violet:    #6d28d9;
+      --green:     #15803d;
+      --green-dim: #166534;
+      --amber:     #b45309;
+      --red:       #dc2626;
+      --text:      #0f172a;
+      --text-2:    #1e3a5f;
+      --text-3:    #475569;
+      --text-4:    #94a3b8;
+      --gold:      #92400e;
+      --silver:    #475569;
+      --bronze:    #78350f;
+    }
+
+    [data-theme="light"] body::before {
+      background: radial-gradient(ellipse, rgba(3,105,161,0.05) 0%, transparent 70%);
+    }
+
+    [data-theme="light"] .skel {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 300% 100%;
+    }
+
+    /* ── Theme toggle button ────────────────────── */
+    .theme-toggle {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-2);
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    .theme-toggle-icon { font-size: 0.85rem; line-height: 1; }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 14px; scroll-behavior: smooth; }
+    html { font-size: 16px; scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
@@ -44,6 +101,7 @@
       font-family: var(--mono);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      transition: background 0.25s, color 0.25s;
     }
 
     /* Subtle radial glow at top */
@@ -186,7 +244,7 @@
       padding: 18px 20px;
       position: relative;
       overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.25s, transform 0.2s, background 0.25s;
     }
 
     .stat-card:hover {
@@ -263,6 +321,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
+      transition: background 0.25s, border-color 0.25s;
     }
 
     .board-header {
@@ -644,6 +703,10 @@
         <div class="live-dot"></div>
         LIVE
       </div>
+      <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode">
+        <span class="theme-toggle-icon" id="theme-icon">🌙</span>
+        <span id="theme-label">Dark</span>
+      </button>
       <div class="timer-row">
         Updated <b id="last-updated">just now</b>
       </div>
@@ -793,12 +856,37 @@
 
 </div>
 <script>
+// ── Theme toggle ─────────────────────────────────────────────────────────────
+(function() {
+  const root    = document.documentElement;
+  const saved   = localStorage.getItem('lb-theme') || 'light';
+  root.setAttribute('data-theme', saved);
+
+  function applyTheme(t) {
+    root.setAttribute('data-theme', t);
+    localStorage.setItem('lb-theme', t);
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    if (icon)  icon.textContent  = t === 'dark' ? '☀' : '🌙';
+    if (label) label.textContent = t === 'dark' ? 'Light' : 'Dark';
+  }
+
+  applyTheme(saved);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const current = root.getAttribute('data-theme') || 'dark';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  });
+})();
+
 // ── Config ───────────────────────────────────────────────────────────────────
 const RPCS = [
-  "https://sepolia.infura.io/v3/882b351c24b14372b17cb9ccc92817fa",
   "https://ethereum-sepolia-rpc.publicnode.com",
-  "https://rpc.sepolia.org",
   "https://sepolia.drpc.org",
+  "https://rpc2.sepolia.org",
+  "https://sepolia.gateway.tenderly.co",
 ];
 
 const REFRESH_MS = 30000;
@@ -814,7 +902,7 @@ const ADDR = {
 const ABI = {
   registry:   [
     "function totalAgents() view returns (uint256)",
-    "function getAgent(uint256) view returns (address,address,string,string,string[],uint256,bool)",
+    "function getAgent(uint256) view returns (tuple(address operatorWallet, address agentWallet, string name, string description, string[] capabilities, uint256 registeredAt, bool active) agent)",
   ],
   vault:      [
     "function hasClaimed(uint256) view returns (bool)",
